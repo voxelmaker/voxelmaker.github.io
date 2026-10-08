@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+    }
+
+    #viewer {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: black;
+    }
+
+    #viewer img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="viewer">
+    <img id="image" src="norm1.png" alt="">
+  </div>
+
+  <script>
+  const images = [
+  "norm1.png",
+  "blink1.png",
+  "grr1.png"
+];
+
+let current = 0;
+let animationRunning = false;
+let animationTimer = null;
+
+const image = document.getElementById("image");
+const viewer = document.getElementById("viewer");
+
+function showImage(index) {
+  current = (index + images.length) % images.length;
+  image.src = images[current];
+}
+
+function startAnimation() {
+  // Don't start another animation if one is already running
+  if (animationRunning) return;
+
+  animationRunning = true;
+
+  function blink() {
+    if (!animationRunning) return;
+
+    // Frame 1
+    showImage(0);
+
+    animationTimer = setTimeout(() => {
+
+      if (!animationRunning) return;
+
+      // Frame 2
+      showImage(1);
+
+      animationTimer = setTimeout(() => {
+
+        if (!animationRunning) return;
+
+        // Repeat forever
+        blink();
+
+      }, 200); // Short gap between blink1 and norm1
+
+    }, 2000); // Time norm1 stays visible
+  }
+
+  blink();
+}
+
+function stopAnimation() {
+  animationRunning = false;
+
+  if (animationTimer) {
+    clearTimeout(animationTimer);
+    animationTimer = null;
+  }
+}
+
+document.addEventListener("keydown", (event) => {
+
+  switch (event.key) {
+
+    // Start infinite animation
+    case "1":
+      event.preventDefault();
+      startAnimation();
+      break;
+
+
+    // Stop animation and show grr1 for 10 seconds
+    case "2":
+      event.preventDefault();
+
+      stopAnimation();
+
+      // Show grr1
+      showImage(2);
+
+      // After 10 seconds, return to norm1
+      animationTimer = setTimeout(() => {
+        showImage(0);
+      }, 10000);
+
+      break;
+
+
+    // Fullscreen
+    case "f":
+    case "F":
+      if (!document.fullscreenElement) {
+        viewer.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+      break;
+  }
+});
+
+
+// Double-click fullscreen
+viewer.addEventListener("dblclick", () => {
+  if (!document.fullscreenElement) {
+    viewer.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+});
+
+startAnimation();
+  </script>
+
+</body>
+</html>
+
